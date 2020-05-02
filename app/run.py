@@ -40,16 +40,16 @@ def tokenize(text):
 @app.route('/')
 @app.route('/index')
 def index():
-    """[summary]
+    """Python code for main page of web application
 
     Returns:
-        [type] -- [description]
+        obj -- template be rendered in html
     """
     
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = df.groupby('genre').count()['message']
-    genre_names = list(genre_counts.index)
+    # genre_counts = df.groupby('genre').count()['message']
+    # genre_names = list(genre_counts.index)
 
     category_counts = df[df.columns[4:]].sum()
     categories = df.columns[4:]
@@ -96,20 +96,15 @@ def go():
     # save user input in query
     query = request.args.get('query', '')
 
-    print(query)
-
-    cleaned_query = tokenize(query)
-
     # use model to predict classification for query
-    classification_labels = model.predict([cleaned_query])[0]
+    classification_labels = model.predict([query])[0]
     classification_results = dict(zip(df.columns[4:], classification_labels))
 
     # This will render the go.html Please see that file. 
     return render_template(
         'go.html',
         query=query,
-        classification_result=classification_results
-    )
+        classification_result=classification_results)
 
 
 def main():
@@ -119,7 +114,6 @@ def main():
 
     print("Running app...")
     app.run(host='0.0.0.0', port=3001, debug=True)
-
 
 
 if __name__ == '__main__':
