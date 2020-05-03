@@ -41,7 +41,7 @@ def load_data(database_filepath):
     
     return X, Y, category_names
 
-# TODO: import 
+
 def tokenize(text):
 
     """ Clean text to be used in ML algorithm
@@ -86,31 +86,13 @@ def train_model(model, X_train, Y_train):
 def gridsearch_parameters(pipeline, X_train, Y_train):
     start = time.process_time();
 
-    # parameters = {
-    #     'clf__estimator__criterion': ['entropy'], #In this, keep gini or entropy.
-    #     'clf__estimator__max_depth': [2, 5], #Use only two
-    #     'clf__estimator__n_estimators': [10, 20]# Use only two
-    #     #'clf__estimator__min_samples_leaf':[1, 5] # can be ignored
-    # }
-
-        # parameters = {
-        #     'features__text_pipeline__vect__ngram_range': ((1, 1), (1, 2)),
-        #     'features__text_pipeline__vect__max_df': (0.5, 0.75, 1.0),
-        #     'features__text_pipeline__vect__max_features': (None, 5000, 10000),
-        #     'features__text_pipeline__tfidf__use_idf': (True, False),
-        #     'clf__n_estimators': [50, 100, 200],
-        #     'clf__min_samples_split': [2, 3, 4],
-        #     'features__transformer_weights': (
-        #         {'text_pipeline': 1, 'starting_verb': 0.5},
-        #         {'text_pipeline': 0.5, 'starting_verb': 1},
-        #         {'text_pipeline': 0.8, 'starting_verb': 1},
-        #     )
-        # }
-
     parameters = {
-    'clf__estimator__n_estimators': [10],
-    'vect__ngram_range': [(1, 1)]
-}
+        'clf__estimator__criterion': ['entropy'], #In this, keep gini or entropy.
+        'clf__estimator__max_depth': [2, 5], # Use only two
+        'clf__estimator__n_estimators': [20, 50], # Use only two
+        'clf__estimator__min_samples_leaf':[1, 5], # can be ignored
+        'vect__ngram_range': [[1, 1], [1, 2]],
+        'tfidf__use_idf': [True, False]}
 
     cv = GridSearchCV(estimator=pipeline, param_grid=parameters, 
                     scoring='f1_macro', cv=None, verbose=10) # , n_jobs=2
@@ -122,7 +104,7 @@ def gridsearch_parameters(pipeline, X_train, Y_train):
     return cv
 
 
-def evaluate_model(model, X_test, Y_test, category_names):
+def evaluate_model(model, X_test, Y_test, category_names, model_filepath):
 
     """ Evaluate the ML learning model created using pipeline feature in `build_model`
 
@@ -143,8 +125,9 @@ def evaluate_model(model, X_test, Y_test, category_names):
         print(classification_report(Y_test.values[:, i], Y_pred[:, i]))
 
         ml_scores[Y_test.columns[i]] = classification_report(Y_test.values[:, i], Y_pred[:, i], output_dict=True)
-
-    with open('ml_scores.json', 'w') as fp:
+    
+    scores_filepath = model_filepath.split('.')[-2] + ".json"
+    with open(scores_filepath, 'w') as fp:
         json.dump(ml_scores, fp)
 
 
@@ -160,6 +143,7 @@ def save_model(model, model_filepath):
     # Save the trained model as a pickle string. 
     pickle.dump(model, open(model_filepath, 'wb'))
 
+
 def main():
 
     # check required args given
@@ -173,40 +157,38 @@ def main():
 
         # TODO: change split size back
         # split data
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.001)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 
         print('Building pipeline...')
         pipeline = build_model()
 
         ## Original model
         
-        print('Training original model...')
-        original_model = train_model(pipeline, X_train, Y_train)
+        # print('Training original model...')
+        # original_model = train_model(pipeline, X_train, Y_train)
 
-        print('Evaluating original model...')
-        evaluate_model(original_model, X_test, Y_test, category_names)
+        # print('Evaluating original model...')
+        # evaluate_model(original_model, X_test, Y_test, category_names, model_filepath)
 
-        print('Saving original model...\n    MODEL: {}'.format(model_filepath))
-        save_model(original_model, model_filepath)
-
+        # print('Saving original model...\n    MODEL: {}'.format(model_filepath))
+        # save_model(original_model, model_filepath)
 
         # Optimised model
+        try:
+            print('Optimising model...')
+            optimised_model = gridsearch_parameters(pipeline, X_train, Y_train)
 
-        # try:
-        #     print('Optimising model...')
-        #     optimised_model = gridsearch_parameters(pipeline, X_train, Y_train)
+            print('Evaluating optimised model...')
+            evaluate_model(optimised_model, X_test, Y_test, category_names, optimised_model_filepath)
 
-        #     print('Evaluating optimised model...')
-        #     evaluate_model(optimised_model, X_test, Y_test, category_names)
+            print('Saving optimised model...\n    MODEL: {}'.format(optimised_model_filepath))
+            save_model(optimised_model, optimised_model_filepath)
 
-        #     print('Saving optimised model...\n    MODEL: {}'.format(optimised_model_filepath))
-        #     save_model(optimised_model, optimised_model_filepath)
-
-        # except Exception:
-        #     print("Exception in user code:")
-        #     print("-"*60)
-        #     traceback.print_exc(file=sys.stdout)
-        #     print("-"*60)
+        except Exception:
+            print("Exception in user code:")
+            print("-"*60)
+            traceback.print_exc(file=sys.stdout)
+            print("-"*60)
 
         print('Trained optimised model saved!')
 

@@ -98,7 +98,7 @@ class ProcessData:
             pd.DataFrame -- cleaned dataframe
         """
 
-        categories = self.clean_categories_data(df) # split categories data
+        categories = self.split_categories_data(df) # split categories data
         categories = self.rename_category_columns(categories) # rename columns
         categories = self.convert_string_numbers(categories) # convert string to int
 
@@ -113,7 +113,7 @@ class ProcessData:
             database_path {str} -- complete relative file path of where file to be saved 
         """
         engine = create_engine('sqlite:///{}'.format(database_path))
-        df.to_sql('Messages', engine, index=False)  
+        df.to_sql('Messages', engine, index=False, if_exists='replace')  
 
 
     def main(self):
@@ -139,7 +139,7 @@ class ProcessData:
             print('Saving data...\n    DATABASE: {}'.format(database_filepath))
             self.save_data(df, database_filepath) # save file back to .db
             
-            print('Cleaned data saved to...' + str(database_path))
+            print('Cleaned data saved to... ' + str(database_filepath))
         
         else:
             print('Please provide the filepaths of the messages and categories '\
