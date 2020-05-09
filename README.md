@@ -7,10 +7,10 @@
         `python data_etl/data_processing.py data_source/disaster_messages.csv data_source/disaster_categories.csv data_source/disaster_response.db`
 
     - To run ML pipeline that trains classifier and saves
-        `python ml_model/train_classifier.py data_source/disaster_response.db ml_model/original_model.pkl ml_model/optimised_model.pkl`
+        `python ml_model/train_classifier.py data_source/disaster_response.db ml_model/optimised_model.pkl`
 
 2. Run the following command in the web_app directory to run your web app.
-    `python run.py data_source/DisasterResponse.db ml_model/original_model.pkl`
+    `python run.py data_source/disaster_response.db ml_model/optimised_model.pkl`
 
 3. Go to http://0.0.0.0:3001/
 
@@ -19,12 +19,9 @@
 ### TODO:
 
 - Check the filepaths are valid before running code
-- Remove original model code
 - Tackle imbalance problems using downsampling/upsampling or other methods (SMOTE)
 - Host app in cloud
-- Optimise GridSearch
-- Add suggested links
-- Plot current model stats in webUI
+
 
 ### Introduction
 

@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 from sqlalchemy import create_engine
 
+#!/usr/bin/python
 
 class ProcessData:
 
@@ -121,7 +122,6 @@ class ProcessData:
         Main method performing ETL tasks and providing user feedback
         """
 
-        
         if len(sys.argv) == 4: # check number of arguments given
             
             # declare argument variables
