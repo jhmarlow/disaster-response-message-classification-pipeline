@@ -49,12 +49,7 @@ The Machine Learning Model is a multioutput classifier is scored against the mac
 
 Reference: https://datascience.stackexchange.com/questions/40900/whats-the-difference-between-sklearn-f1-score-micro-and-weighted-for-a-mult
 
-#### NLP
-
-Count vectorizer - using a customized tokenizer
-TfidfTransformer - ...
-
-### Web App
+### 3. Web App
 
 The web app is an interface based on Python's Flask to provide a UI to  utilise the machine learning model. It provides some high level visualisations and a UI message classifier. Note the quickstart instructions run the code in debug mode, the live webapp is hosted on Heroku.
 
@@ -62,4 +57,4 @@ The web app is an interface based on Python's Flask to provide a UI to  utilise 
 
 ### Dataset Discussion
 
-The dataset displays class imbalance, meaning that in some cases there are very few cases in the training dataset where messages for a particular class can be provided (e.g. water, see "Support" in classification reports). As there are very few true positives in the training set it makes it difficult for the ML model to learn how to classify these categories. This can be imporved by emphasizing class and recall for particular categories #TODO:.....
+The dataset displays class imbalance, meaning that in some cases there are very few cases in the training dataset where messages for a particular class can be provided (e.g. water, see "Support" in classification reports). As there are very few true positives in the training set it makes it difficult for the ML model to learn how to classify these categories. This can be imporved by emphasizing class and recall for particular categories, this can also be improved by resampling the dataset (See  issues tab)
