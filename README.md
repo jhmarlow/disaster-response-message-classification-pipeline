@@ -14,6 +14,8 @@
 
 3. Go to http://0.0.0.0:3001/
 
+![](running_webapp.gif)
+
 4. Enter message, e.g. "I need water" or "there has been an earthquake" - the message will be classified and suitable link provided
 
 ### TODO:
