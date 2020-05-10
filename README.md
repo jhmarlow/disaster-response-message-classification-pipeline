@@ -2,6 +2,7 @@
 
 ### Quick Start Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
+    - A recommendation would be to create a 'data_source' directory in the project route directory to store csv files. However, below if you change the filepaths it can be used on data in any location.
 
     - To run ETL pipeline that cleans data and stores in database
         `python data_etl/data_processing.py data_source/disaster_messages.csv data_source/disaster_categories.csv data_source/disaster_response.db`
