@@ -1,10 +1,11 @@
 """Code to run to start webapp."""
 
+from data_visualisation import category_counts,\
+    load_model_scores, create_figures
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from flask import Flask
 from flask import render_template, request  # , jsonify
-from plotly.graph_objs import Bar
 from sqlalchemy import create_engine
 import json
 import sys
@@ -16,68 +17,6 @@ nltk.download('punkt')
 
 
 app = Flask(__name__)
-
-
-def load_model_scores(model_filepath):
-    """Load classification report data from jsons created in train classifier.py.
-
-    Arguments:
-        model_filepath {[type]} -- [description]
-
-    Returns:
-        [type] -- [description]
-    """
-    # get report automatically created in train_classifier.py
-    df = pd.read_json("../{}.json".format(model_filepath.split('.')[-2]),
-                      orient='records')
-
-    names = []
-    weighted_avg_f1score = []
-    weighted_avg_precision = []
-    weighted_avg_recall = []
-    macro_avg_f1score = []
-    macro_avg_precision = []
-    macro_avg_recall = []
-
-    for col_name in df.columns:
-        names.append(col_name.replace('_', ' '))
-        weighted_avg_f1score.append(df[col_name]['weighted avg']['f1-score'])
-        weighted_avg_precision.append(
-            df[col_name]['weighted avg']['precision'])
-        weighted_avg_recall.append(df[col_name]['weighted avg']['recall'])
-        macro_avg_f1score.append(df[col_name]['macro avg']['f1-score'])
-        macro_avg_precision.append(df[col_name]['macro avg']['precision'])
-        macro_avg_recall.append(df[col_name]['macro avg']['recall'])
-
-    report_df = pd.DataFrame({
-        "names": names,
-        "weighted_avg_f1score": weighted_avg_f1score,
-        "weighted_avg_precision": weighted_avg_precision,
-        "weighted_avg_recall": weighted_avg_recall,
-        "macro_avg_f1score": macro_avg_f1score,
-        "macro_avg_precision": macro_avg_precision,
-        "macro_avg_recall": macro_avg_recall
-    })
-
-    return report_df
-
-
-def category_counts(df):
-    """Count categories in dataset.
-
-    Arguments:
-        df {[type]} -- [description]
-    """
-    # Category Counts in training dataset
-    category_counts = df[df.columns[4:]].sum()
-    categories = df.columns[4:]
-    categories = [cat.replace('_', ' ') for cat in categories]
-    category_counts_df = pd.DataFrame({'categories': categories,
-                                       'category_counts': category_counts})
-    category_counts_df = category_counts_df.sort_values(by=['category_counts'],
-                                                        ascending=False)
-
-    return category_counts_df
 
 
 def tokenize(text):
@@ -98,141 +37,6 @@ def tokenize(text):
         clean_tokens.append(clean_tok)
 
     return clean_tokens
-
-
-def create_figures(report_df, category_counts_df, df):
-    """Plot figures for webpage.
-
-    Arguments:
-        report_df {[type]} -- [description]
-        category_counts_df {[type]} -- [description]
-    """
-    # Parameters for plot
-    opacity_val = 0.8
-    marker_line_color_val = 'rgb(8,48,107)'
-    marker_line_width_val = 1.2
-
-    # Create visuals
-    graphs = [
-        {
-            'data': [
-                Bar(
-                    x=category_counts_df['categories'],
-                    y=category_counts_df['category_counts'],
-                    width=0.5,
-                    opacity=opacity_val,
-                    marker_line_color=marker_line_color_val,
-                    marker_line_width=marker_line_width_val
-                )
-            ],
-            'layout': {
-                'title': 'Categories in Dataset',
-                'yaxis': {
-                    'title': "Number of Messages"
-                },
-                'xaxis': {
-                    'tickangle': 45
-                }
-            }
-        },
-        {
-            'data': [
-                Bar(
-                    x=df.groupby('genre').count()['message'].index,
-                    y=df.groupby('genre').count()['message'].values,
-                    width=0.5,
-                    opacity=opacity_val,
-                    marker_line_color=marker_line_color_val,
-                    marker_line_width=marker_line_width_val
-                )
-            ],
-            'layout': {
-                'title': 'Genres in Dataset',
-                'yaxis': {
-                    'title': "Number of Messages"
-                },
-                'xaxis': {
-                    'tickangle': 45
-                }
-            }
-        },
-        {
-            'data': [
-                Bar(
-                    x=report_df["names"],
-                    y=report_df["weighted_avg_f1score"],
-                    width=0.2,
-                    opacity=opacity_val,
-                    marker_line_color=marker_line_color_val,
-                    marker_line_width=marker_line_width_val,
-                    name='Weighted Average F1-score'),
-                Bar(
-                    x=report_df["names"],
-                    y=report_df["weighted_avg_precision"],
-                    width=0.2,
-                    opacity=opacity_val,
-                    marker_line_color=marker_line_color_val,
-                    marker_line_width=marker_line_width_val,
-                    name='Weighted Average Precision'),
-                Bar(
-                    x=report_df["names"],
-                    y=report_df["weighted_avg_recall"],
-                    width=0.2,
-                    opacity=opacity_val,
-                    marker_line_color=marker_line_color_val,
-                    marker_line_width=marker_line_width_val,
-                    name='Weighted Average Recall')
-            ],
-            'layout': {
-                'title': 'Machine Learning Classification Report ({})'
-                         .format(model_filepath),
-                'yaxis': {
-                    'title': "Model Score",
-                    'range': [0, 1.3]},
-                'xaxis': {
-                    'tickangle': 45}
-            }
-        },
-        {
-            'data': [
-                Bar(
-                    x=report_df["names"],
-                    y=report_df["macro_avg_f1score"],
-                    width=0.2,
-                    opacity=opacity_val,
-                    marker_line_color=marker_line_color_val,
-                    marker_line_width=marker_line_width_val,
-                    name='Macro Average F1-score'),
-                Bar(
-                    x=report_df["names"],
-                    y=report_df["macro_avg_precision"],
-                    width=0.2,
-                    opacity=opacity_val,
-                    marker_line_color=marker_line_color_val,
-                    marker_line_width=marker_line_width_val,
-                    name='Macro Average Precision'),
-                Bar(
-                    x=report_df["names"],
-                    y=report_df["macro_avg_recall"],
-                    width=0.2,
-                    opacity=opacity_val,
-                    marker_line_color=marker_line_color_val,
-                    marker_line_width=marker_line_width_val,
-                    name='Macro Average Recall')
-            ],
-            'layout': {
-                'title': 'Machine Learning Classification Report ({})'
-                         .format(model_filepath),
-                'yaxis': {
-                    'title': "Model Score",
-                    'range': [0, 1.3]},
-                'xaxis': {
-                    'tickangle': 45}
-            }
-        }
-    ]
-
-    return graphs
 
 
 def useful_links(classification_results):
@@ -257,7 +61,7 @@ def useful_links(classification_results):
     elif classification_results['search_and_rescue'] == 1:
         link = 'https://www.gov.uk/government/publications/search-and-rescue-framework-uksar'
     elif classification_results['related'] == 1 or \
-         classification_results['aid_related'] == 1:
+        classification_results['aid_related'] == 1:
         link = 'https://www.redcross.org.uk/'
     else:
         link = None
@@ -280,7 +84,7 @@ def index():
     # count messages per category in database
     category_counts_df = category_counts(df)
 
-    graphs = create_figures(report_df, category_counts_df, df)
+    graphs = create_figures(report_df, category_counts_df, df, model_filepath)
 
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
