@@ -1,5 +1,7 @@
 # Disaster Response Pipeline Project
 
+![](readme_resources/webapp_demo.gif)
+
 ### Quick Start Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
 
@@ -14,7 +16,7 @@
 
 3. Go to http://0.0.0.0:3001/
 
-![](running_webapp.gif)
+![](readme_resources/running_webapp.gif)
 
 4. Enter message, e.g. "I need water" or "there has been an earthquake" - the message will be classified and suitable link provided
 
