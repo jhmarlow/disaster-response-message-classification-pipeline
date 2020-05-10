@@ -20,9 +20,7 @@
 
 ### TODO:
 
-- Check the filepaths are valid before running code
-- Tackle imbalance problems using downsampling/upsampling or other methods (SMOTE)
-- Host app in cloud
+- see issues tab
 
 ### Introduction
 
