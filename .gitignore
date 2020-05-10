@@ -1,1 +1,9 @@
 *.pyc
+.vscode/settings.json
+.DS_Store
+.vscode/launch.json
+data_source/disaster_categories.csv
+data_source/disaster_messages.csv
+data_source/disaster_response.db
+ml_model/optimised_model.pkl
+ml_model/optimised_model.json

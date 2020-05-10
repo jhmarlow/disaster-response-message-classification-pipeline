@@ -22,7 +22,6 @@
 - Tackle imbalance problems using downsampling/upsampling or other methods (SMOTE)
 - Host app in cloud
 
-
 ### Introduction
 
 This repository contains the code required to deploy a Disaster Response Machine Learning Pipeline. The repository contains three different functionalities:

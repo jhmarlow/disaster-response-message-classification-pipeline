@@ -1,8 +1,4 @@
-"""Train classifer.
-
-Returns:
-    [type] -- [description]
-"""
+"""Train classifer."""
 
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
@@ -24,11 +20,8 @@ import nltk
 nltk.download('stopwords')
 nltk.download('wordnet')
 
-# !/usr/bin/python
-
 
 def load_data(database_filepath):
-
     """Load processed data from .db file.
 
     Arguments:
@@ -43,33 +36,32 @@ def load_data(database_filepath):
     df.related.replace(2, 1, inplace=True)
 
     X = df['message']  # set messages at X
-    Y = df[df.columns[4:]]  # set Y as categories
+    Y = df[df.columns[4:]]  # set Y as categories
     category_names = df.columns[4:]  # rename columns
     return X, Y, category_names
 
 
 def tokenize(text):
-
     """Clean text to be used in ML algorithm.
 
     Arguments:
         text {str} -- text to be cleaned
     """
-
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())  # normalize text
 
     words_normalized = text.split()  # tokenize text
     # Remove stop words
     words_stopw_removed = [word for word in words_normalized
-                            if word not in stopwords.words("english")]
+                           if word not in stopwords.words("english")]
 
     # Reduce words to root form
-    words_lemmed = [WordNetLemmatizer().lemmatize(w) for w in words_stopw_removed]
+    words_lemmed = [WordNetLemmatizer().lemmatize(w)
+                    for w in words_stopw_removed]
 
     return words_lemmed
 
 
-def build_model():
+def build_pipeline():
     """Build ML model using sklearn's pipeline module.
 
     Returns:
@@ -82,8 +74,8 @@ def build_model():
     return pipeline
 
 
-def gridsearch_parameters(pipeline, X_train, Y_train):
-    """Function used to optimized ml model based on hyperparameters.
+def perform_gridsearchcv(pipeline, X_train, Y_train):
+    """Optimize ml model based on hyperparameters.
 
     Arguments:
         pipeline {obj} -- pipeline setup for ml model
@@ -99,28 +91,29 @@ def gridsearch_parameters(pipeline, X_train, Y_train):
         'vect__ngram_range': [[1, 1], [1, 2]],
         'tfidf__use_idf': [True, False]}
 
-# 'clf__estimator__criterion': ['entropy'], #In this, keep gini or entropy.
-# 'clf__estimator__max_depth': [2, 5], # Use only two
-# 'clf__estimator__n_estimators': [20, 50], # Use only two
-# 'clf__estimator__min_samples_leaf':[1, 5], # can be ignored
+    # 'clf__estimator__criterion': ['entropy'], #In this, keep gini or entropy.
+    # 'clf__estimator__max_depth': [2, 5], # Use only two
+    # 'clf__estimator__n_estimators': [20, 50], # Use only two
+    # 'clf__estimator__min_samples_leaf':[1, 5], # can be ignored
 
-    cv = GridSearchCV(estimator=pipeline, param_grid=parameters)
-                    # scoring='f1_macro', cv=None, verbose=10)   # , n_jobs=2
+    cv = GridSearchCV(estimator=pipeline, param_grid=parameters,
+                      scoring='f1_macro', cv=None, verbose=10)   # , n_jobs=2
 
     cv.fit(X_train, Y_train)
 
     print("Model optimising time.... " + str(time.process_time() - start))
+    
     return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names, model_filepath):
-    """Evaluate the ML learning model created using pipeline feature
-    in `build_model`.
+    """Evaluate the ML learning model created using pipeline feature.
 
     Arguments:
         model {obj} -- pipeline model to be used in prediction
         X_test {pd.DataFrame} -- single column df containing messages
-        Y_test {pd.DataFrame} -- multi column dataframe containing categories data
+        Y_test {pd.DataFrame} -- multi column dataframe containing categories
+         data
         category_names {list} -- list of category names from Y_test
     """
     # predict on test data
@@ -132,7 +125,10 @@ def evaluate_model(model, X_test, Y_test, category_names, model_filepath):
         print("Category: " + Y_test.columns[i])
         print(classification_report(Y_test.values[:, i], Y_pred[:, i]))
 
-        ml_scores[Y_test.columns[i]] = classification_report(Y_test.values[:, i], Y_pred[:, i], output_dict=True)
+        ml_scores[Y_test.columns[i]] = \
+            classification_report(Y_test.values[:, i],
+                                  Y_pred[:, i],
+                                  output_dict=True)
 
     scores_filepath = model_filepath.split('.')[-2] + ".json"
     with open(scores_filepath, 'w') as fp:
@@ -157,7 +153,6 @@ def main():
 
         database_filepath, optimised_model_filepath = sys.argv[1:]
 
-        # load data
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
 
@@ -166,10 +161,10 @@ def main():
             train_test_split(X, Y, test_size=0.3)
 
         print('Building pipeline...')
-        pipeline = build_model()
+        pipeline = build_pipeline()
 
         print('Optimising model...')
-        optimised_model = gridsearch_parameters(pipeline, X_train, Y_train)
+        optimised_model = perform_gridsearchcv(pipeline, X_train, Y_train)
 
         print('Evaluating optimised model...')
         evaluate_model(optimised_model, X_test, Y_test,
