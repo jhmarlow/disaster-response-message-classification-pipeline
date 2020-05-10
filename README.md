@@ -1,7 +1,5 @@
 # Disaster Response Pipeline Project
 
-![](readme_resources/webapp_demo.gif)
-
 ### Quick Start Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
 
@@ -61,6 +59,8 @@ TfidfTransformer - ...
 ### Web App
 
 The web app is an interface based on Python's Flask to provide a UI to  utilise the machine learning model. It provides some high level visualisations and a UI message classifier. Note the quickstart instructions run the code in debug mode, the live webapp is hosted on Heroku.
+
+![](readme_resources/webapp_demo.gif)
 
 ### Dataset Discussion
 
