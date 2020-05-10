@@ -14,11 +14,11 @@
 
 3. Go to http://0.0.0.0:3001/
 
-![](readme_resources/running_webapp.gif)
-
 4. Enter message, e.g. "I need water" or "there has been an earthquake" - the message will be classified and suitable link provided
 
-### TODO:
+![](readme_resources/running_webapp.gif)
+
+### Todo:
 
 - see issues tab
 
